@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <h1 class="page-title" style="margin: 0;">Parcel <%= parcel.trackingId %></h1>
+                        <button type="button" class="btn btn-outline btn-sm btn-copy-tracking" data-code="<%= parcel.trackingId %>">
+                            Copy ID
+                        </button>
+                    </div>
+                    <p class="page-description">Booked on <%= new Date(parcel.createdAt).toLocaleString() %></p>
+                </div>
+                <div>
+                    <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+                        <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                    </span>
+                </div>
+            </div>
+
+            <% if (parcel.status === 'FAILED') { %>
+                <div class="alert alert-danger" style="margin-bottom: 2rem;">
+                    <div>
+                        <strong>Delivery Attempt Failed:</strong> <%= parcel.failureReason || 'Unforeseen delivery exception.' %>
+                        <div style="font-size: 0.85rem; margin-top: 0.25rem;">
+                            Please contact customer care or our dispatch center for rescheduling.
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Details Overview Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+                <!-- Sender Info -->
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                        📍 Pickup / Sender
+                    </h3>
+                    <p style="margin-top: 0.75rem;"><strong><%= parcel.senderName %></strong></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;"><%= parcel.senderPhone %></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0.5rem;">
+                        <%= parcel.pickupAddress %><br>
+                        <strong>PIN: <%= parcel.pickupPincode %></strong>
+                    </p>
+                </div>
+
+                <!-- Receiver Info -->
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                        🎯 Destination / Receiver
+                    </h3>
+                    <p style="margin-top: 0.75rem;"><strong><%= parcel.receiverName %></strong></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;"><%= parcel.receiverPhone %></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0.5rem;">
+                        <%= parcel.dropAddress %><br>
+                        <strong>PIN: <%= parcel.dropPincode %></strong>
+                    </p>
+                </div>
+
+                <!-- Parcel & Pricing Specs -->
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                        📦 Shipment Details
+                    </h3>
+                    <div style="margin-top: 0.75rem; font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                        <div><strong>Type:</strong> <%= parcel.parcelType %></div>
+                        <div><strong>Weight:</strong> <%= parcel.weight %> kg</div>
+                        <% if (parcel.description) { %>
+                            <div><strong>Contents:</strong> <%= parcel.description %></div>
+                        <% } %>
+                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-color);">
+                            <strong>Estimated Charge:</strong> 
+                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-left: 0.5rem;">₹<%= parcel.estimatedCharge %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Agent Card -->
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                        🚚 Delivery Agent
+                    </h3>
+                    <% if (parcel.agentId) { %>
+                        <div style="margin-top: 0.75rem; font-size: 0.92rem;">
+                            <p><strong><%= parcel.agentId.name %></strong></p>
+                            <p style="color: var(--text-secondary);">Phone: <%= parcel.agentId.phone %></p>
+                            <% if (parcel.agentId.vehicleNumber) { %>
+                                <p style="color: var(--text-secondary); margin-top: 0.35rem;">
+                                    Vehicle: <strong><%= parcel.agentId.vehicleNumber %></strong>
+                                </p>
+                            <% } %>
+                            <span class="badge badge-active" style="margin-top: 0.5rem;">Assigned</span>
+                        </div>
+                    <% } else { %>
+                        <div style="margin-top: 1.25rem; color: var(--text-muted); font-size: 0.92rem;">
+                            <p>No agent assigned yet.</p>
+                            <p style="font-size: 0.85rem; margin-top: 0.25rem;">Shipment is currently queued at the central operations hub.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Visual Status Timeline -->
+            <div class="card">
+                <h2 class="card-title">Live Tracking Timeline</h2>
+                <p class="card-subtitle">Real-time status updates recorded in the immutable tracking ledger.</p>
+
+                <div class="timeline-container">
+                    <% if (history && history.length > 0) { %>
+                        <% history.forEach((event, index) => { %>
+                            <% const isLatest = index === history.length - 1; %>
+                            <div class="timeline-step <%= isLatest ? (parcel.status === 'FAILED' ? 'failed' : 'active') : 'completed' %>">
+                                <div class="timeline-node">
+                                    <% if (event.status === 'FAILED') { %>
+                                        ✕
+                                    <% } else if (isLatest) { %>
+                                        ●
+                                    <% } else { %>
+                                        ✓
+                                    <% } %>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">
+                                            <%= statusDetails[event.status] ? statusDetails[event.status].label : event.status %>
+                                        </div>
+                                        <div class="timeline-time">
+                                            <%= new Date(event.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-location">
+                                        📍 <%= event.location %>
+                                    </div>
+                                    <% if (event.remarks) { %>
+                                        <div class="timeline-remarks"><%= event.remarks %></div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p style="color: var(--text-muted);">No history events recorded yet.</p>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

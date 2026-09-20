@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Delivery Zones & Regional Tariffs</h1>
+                    <p class="page-description">Configure regional coverage zones, mapped postal codes, and price multipliers.</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+                <!-- Add Zone Form -->
+                <div class="card">
+                    <h2 class="card-title">Add Coverage Zone</h2>
+                    <form action="/admin/zones" method="POST">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Zone Name</label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. South Delhi Hub" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="baseMultiplier" class="form-label">Pricing Multiplier</label>
+                            <input type="number" id="baseMultiplier" name="baseMultiplier" step="0.05" min="1.0" max="3.0" class="form-control" value="1.0" required>
+                            <div class="form-hint">Standard Local = 1.0, Nearby = 1.25, Regional = 1.5</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pincodes" class="form-label">Mapped Pincodes (Comma Separated)</label>
+                            <textarea id="pincodes" name="pincodes" class="form-control" rows="4" placeholder="110001, 110002, 110003, 110005" required></textarea>
+                            <div class="form-hint">Parcels within these pincodes will receive this zone tariff.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Add Zone</button>
+                    </form>
+                </div>
+
+                <!-- Existing Zones Table -->
+                <div class="table-card" style="margin-bottom: 0;">
+                    <div class="table-header">
+                        <h2 class="card-title" style="margin: 0;">Configured Delivery Zones</h2>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Zone Name</th>
+                                    <th>Multiplier</th>
+                                    <th>Covered Pincodes</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (zones && zones.length > 0) { %>
+                                    <% zones.forEach(zone => { %>
+                                        <tr>
+                                            <td><strong><%= zone.name %></strong></td>
+                                            <td><code><%= zone.baseMultiplier %>x</code></td>
+                                            <td>
+                                                <div style="font-size: 0.85rem; max-width: 320px; word-break: break-all;">
+                                                    <%= zone.pincodes.slice(0, 5).join(', ') %>
+                                                    <% if (zone.pincodes.length > 5) { %>
+                                                        <span style="color: var(--text-muted); font-style: italic;">
+                                                            (+<%= zone.pincodes.length - 5 %> more)
+                                                        </span>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge <%= zone.isActive ? 'badge-active' : 'badge-inactive' %>">
+                                                    <%= zone.isActive ? 'Active' : 'Disabled' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <form action="/admin/zones/<%= zone._id %>/toggle" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn btn-outline btn-sm" style="<%= zone.isActive ? 'color: #EF4444;' : 'color: #10B981;' %>">
+                                                        <%= zone.isActive ? 'Disable' : 'Enable' %>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                            No delivery zones configured yet.
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

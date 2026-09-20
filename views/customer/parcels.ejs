@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">My Parcels</h1>
+                    <p class="page-description">Complete log of all your shipments, assigned delivery agents, and history.</p>
+                </div>
+                <div>
+                    <a href="/customer/parcels/book" class="btn btn-primary">Book New Parcel</a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="table-card">
+                <div class="table-header">
+                    <div>
+                        <strong>Filter by Status:</strong>
+                    </div>
+                    <div>
+                        <select id="table-status-filter" class="form-select" style="width: auto; display: inline-block;">
+                            <option value="ALL" <%= currentStatus === 'ALL' ? 'selected' : '' %>>All Statuses</option>
+                            <option value="BOOKED" <%= currentStatus === 'BOOKED' ? 'selected' : '' %>>Booked</option>
+                            <option value="PICKED_UP" <%= currentStatus === 'PICKED_UP' ? 'selected' : '' %>>Picked Up</option>
+                            <option value="IN_TRANSIT" <%= currentStatus === 'IN_TRANSIT' ? 'selected' : '' %>>In Transit</option>
+                            <option value="OUT_FOR_DELIVERY" <%= currentStatus === 'OUT_FOR_DELIVERY' ? 'selected' : '' %>>Out for Delivery</option>
+                            <option value="DELIVERED" <%= currentStatus === 'DELIVERED' ? 'selected' : '' %>>Delivered</option>
+                            <option value="FAILED" <%= currentStatus === 'FAILED' ? 'selected' : '' %>>Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <% if (parcels && parcels.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking ID</th>
+                                    <th>Receiver</th>
+                                    <th>Destination</th>
+                                    <th>Type / Weight</th>
+                                    <th>Est. Charge</th>
+                                    <th>Assigned Agent</th>
+                                    <th>Status</th>
+                                    <th>Booked On</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% parcels.forEach(parcel => { %>
+                                    <tr>
+                                        <td>
+                                            <a href="/customer/parcels/<%= parcel._id %>" class="tracking-code">
+                                                <%= parcel.trackingId %>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <strong><%= parcel.receiverName %></strong><br>
+                                            <small style="color: var(--text-muted);"><%= parcel.receiverPhone %></small>
+                                        </td>
+                                        <td>
+                                            <%= parcel.dropAddress %><br>
+                                            <small style="color: var(--text-muted);">PIN: <%= parcel.dropPincode %></small>
+                                        </td>
+                                        <td>
+                                            <%= parcel.parcelType %><br>
+                                            <small style="color: var(--text-muted);"><%= parcel.weight %> kg</small>
+                                        </td>
+                                        <td><strong>₹<%= parcel.estimatedCharge %></strong></td>
+                                        <td>
+                                            <% if (parcel.agentId) { %>
+                                                <span style="font-weight: 600;"><%= parcel.agentId.name %></span><br>
+                                                <small style="color: var(--text-muted);"><%= parcel.agentId.phone %></small>
+                                            <% } else { %>
+                                                <span style="color: var(--text-muted); font-style: italic;">Unassigned</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>">
+                                                <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                                            </span>
+                                        </td>
+                                        <td><%= new Date(parcel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></td>
+                                        <td>
+                                            <a href="/customer/parcels/<%= parcel._id %>" class="btn btn-outline btn-sm">Track</a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                        <div style="font-size: 3rem; margin-bottom: 0.75rem;">📦</div>
+                        <h3>No shipments found</h3>
+                        <p>No parcels match the selected criteria.</p>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

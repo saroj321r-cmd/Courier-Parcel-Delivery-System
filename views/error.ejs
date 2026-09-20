@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <main class="auth-wrapper" style="min-height: calc(100vh - 220px);">
+        <div class="auth-card" style="text-align: center; max-width: 540px;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+            <h1 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.75rem;">
+                <%= statusCode === 403 ? 'Access Forbidden' : 'Application Exception' %>
+            </h1>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.05rem;">
+                <%= message %>
+            </p>
+            <div style="padding: 0.85rem; background: var(--bg-secondary); border-radius: var(--radius-md); font-family: monospace; font-size: 0.85rem; margin-bottom: 2rem;">
+                HTTP Status <%= statusCode %> &bull; Resource: <%= path %>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+                <a href="/" class="btn btn-primary">Return to Homepage</a>
+                <a href="/login" class="btn btn-outline">Go to Login</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

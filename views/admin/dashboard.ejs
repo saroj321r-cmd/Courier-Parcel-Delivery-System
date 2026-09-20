@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Admin Logistics Operations</h1>
+                    <p class="page-description">Real-time control center for fleet management, dispatches, and performance metrics.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="/admin/agents/new" class="btn btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+                        Add Agent
+                    </a>
+                    <a href="/admin/parcels" class="btn btn-primary">
+                        Manage All Parcels
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations Metrics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Parcels</span>
+                        <div class="stat-icon">📦</div>
+                    </div>
+                    <div class="stat-value"><%= stats.totalParcels %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Registered Customers</span>
+                        <div class="stat-icon">👥</div>
+                    </div>
+                    <div class="stat-value"><%= stats.totalCustomers %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Delivery Agents</span>
+                        <div class="stat-icon">🚚</div>
+                    </div>
+                    <div class="stat-value"><%= stats.totalAgents %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Unassigned Parcels</span>
+                        <div class="stat-icon">⏳</div>
+                    </div>
+                    <div class="stat-value" style="color: #F97316;"><%= stats.unassignedParcels %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">In Transit</span>
+                        <div class="stat-icon">🛣️</div>
+                    </div>
+                    <div class="stat-value"><%= stats.inTransitParcels %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Delivered</span>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                    <div class="stat-value" style="color: #10B981;"><%= stats.deliveredParcels %></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Failed Deliveries</span>
+                        <div class="stat-icon">⚠️</div>
+                    </div>
+                    <div class="stat-value" style="color: #EF4444;"><%= stats.failedParcels %></div>
+                </div>
+            </div>
+
+            <!-- Chart.js Visual Analytics -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 1rem;">Parcel Status Breakdown</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 1rem;">Daily Parcel Bookings (Last 7 Days)</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 1rem;">Agent Assigned Parcel Load</h3>
+                <div class="chart-wrapper" style="height: 220px;">
+                    <canvas id="agentChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Shipments Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 class="card-title" style="margin: 0;">Recent Shipments</h2>
+                    <a href="/admin/parcels" class="btn btn-outline btn-sm">View Full Manifest</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Sender</th>
+                                <th>Destination</th>
+                                <th>Weight</th>
+                                <th>Assigned Agent</th>
+                                <th>Status</th>
+                                <th>Booked Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (recentParcels && recentParcels.length > 0) { %>
+                                <% recentParcels.forEach(parcel => { %>
+                                    <tr>
+                                        <td>
+                                            <a href="/admin/parcels/<%= parcel._id %>/assign" class="tracking-code">
+                                                <%= parcel.trackingId %>
+                                            </a>
+                                        </td>
+                                        <td><%= parcel.senderName %></td>
+                                        <td><%= parcel.dropAddress %> (<%= parcel.dropPincode %>)</td>
+                                        <td><%= parcel.weight %> kg</td>
+                                        <td>
+                                            <% if (parcel.agentId) { %>
+                                                <strong><%= parcel.agentId.name %></strong>
+                                            <% } else { %>
+                                                <span class="badge badge-booked">Unassigned</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>">
+                                                <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                                            </span>
+                                        </td>
+                                        <td><%= new Date(parcel.createdAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <a href="/admin/parcels/<%= parcel._id %>/assign" class="btn btn-outline btn-sm">
+                                                <%= parcel.agentId ? 'Reassign' : 'Assign Agent' %>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                        No shipments found in database.
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <!-- Injected Data for Chart.js -->
+    <script>
+        window.adminChartPayload = <%- JSON.stringify(chartData) %>;
+    </script>
+    <script src="/js/charts.js"></script>
+</body>
+</html>

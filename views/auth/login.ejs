@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <main class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="brand-icon" style="width: 48px; height: 48px; margin: 0 auto 1rem;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                    </svg>
+                </div>
+                <h1>Welcome Back</h1>
+                <p>Log in to manage shipments, track deliveries, or dispatch orders.</p>
+            </div>
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" value="<%= formData.email || '' %>" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">Sign In</button>
+            </form>
+
+            <!-- Quick Demo Credentials for Viva Demonstration -->
+            <div class="demo-credentials-box">
+                <h4>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Viva Demo One-Click Login Fill
+                </h4>
+                <div class="demo-btn-group">
+                    <button type="button" class="demo-fill-btn" data-email="admin@courierx.com" data-password="Admin@123">
+                        👑 Admin
+                    </button>
+                    <button type="button" class="demo-fill-btn" data-email="agent.vikram@courierx.com" data-password="Agent@123">
+                        🚚 Agent (Vikram)
+                    </button>
+                    <button type="button" class="demo-fill-btn" data-email="customer1@gmail.com" data-password="Customer@123">
+                        👤 Customer
+                    </button>
+                </div>
+            </div>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/register">Create an Account</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

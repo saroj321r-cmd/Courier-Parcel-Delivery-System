@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Book a New Parcel</h1>
+                    <p class="page-description">Fill out the multi-section shipment form to dispatch your delivery.</p>
+                </div>
+            </div>
+
+            <!-- Dynamic Estimated Charge Banner -->
+            <div class="live-estimate-banner">
+                <div>
+                    <div class="estimate-label">Estimated Delivery Charge</div>
+                    <div style="font-size: 0.82rem; color: var(--text-muted);">
+                        *Final rate may vary based on exact parcel dimensions & verified scale weight.
+                    </div>
+                    <div id="live-estimate-breakdown" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-top: 0.35rem;">
+                        Base weight rate × Regional Zone Multiplier
+                    </div>
+                </div>
+                <div class="estimate-value" id="live-estimate-amount">₹50</div>
+            </div>
+
+            <form action="/customer/parcels/book" method="POST" id="book-parcel-form">
+                <!-- SECTION 1: SENDER DETAILS -->
+                <div class="booking-section">
+                    <div class="section-header">
+                        <span class="section-badge">1</span>
+                        <h2 class="section-title">Sender Details</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="senderName" class="form-label">Sender Name</label>
+                            <input type="text" id="senderName" name="senderName" class="form-control" value="<%= formData.senderName || currentUser.name %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderPhone" class="form-label">Sender Contact Phone</label>
+                            <input type="tel" id="senderPhone" name="senderPhone" class="form-control" value="<%= formData.senderPhone || currentUser.phone %>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="senderAddress" class="form-label">Sender Street Address</label>
+                            <input type="text" id="senderAddress" name="senderAddress" class="form-control" placeholder="House/Flat No., Street, Landmark" value="<%= formData.senderAddress || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senderPincode" class="form-label">Sender Pincode</label>
+                            <input type="text" id="senderPincode" name="senderPincode" class="form-control" placeholder="6-digit Pincode" maxlength="6" value="<%= formData.senderPincode || '' %>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: RECEIVER DETAILS -->
+                <div class="booking-section">
+                    <div class="section-header">
+                        <span class="section-badge">2</span>
+                        <h2 class="section-title">Receiver Details</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiverName" class="form-label">Receiver Name</label>
+                            <input type="text" id="receiverName" name="receiverName" class="form-control" placeholder="Recipient Full Name" value="<%= formData.receiverName || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiverPhone" class="form-label">Receiver Contact Phone</label>
+                            <input type="tel" id="receiverPhone" name="receiverPhone" class="form-control" placeholder="10-digit Phone" value="<%= formData.receiverPhone || '' %>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="receiverAddress" class="form-label">Receiver Delivery Address</label>
+                            <input type="text" id="receiverAddress" name="receiverAddress" class="form-control" placeholder="Office / Home Address with Landmark" value="<%= formData.receiverAddress || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiverPincode" class="form-label">Receiver Pincode</label>
+                            <input type="text" id="receiverPincode" name="receiverPincode" class="form-control" placeholder="6-digit Destination Pincode" maxlength="6" value="<%= formData.receiverPincode || '' %>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: PARCEL DETAILS -->
+                <div class="booking-section">
+                    <div class="section-header">
+                        <span class="section-badge">3</span>
+                        <h2 class="section-title">Parcel Specifications</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" id="weight" name="weight" step="0.1" min="0.1" class="form-control" placeholder="e.g. 1.5" value="<%= formData.weight || '1.0' %>" required>
+                            <div class="form-hint">Pricing tier: 0-1kg: ₹50 | 1-3kg: ₹80 | 3-5kg: ₹120 | 5kg+: ₹160</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="parcelType" class="form-label">Parcel Type</label>
+                            <select id="parcelType" name="parcelType" class="form-select" required>
+                                <option value="Package" <%= formData.parcelType === 'Package' ? 'selected' : '' %>>Package (Standard Box)</option>
+                                <option value="Document" <%= formData.parcelType === 'Document' ? 'selected' : '' %>>Document / Envelope</option>
+                                <option value="Fragile" <%= formData.parcelType === 'Fragile' ? 'selected' : '' %>>Fragile (Glass / Ceramic)</option>
+                                <option value="Electronics" <%= formData.parcelType === 'Electronics' ? 'selected' : '' %>>Electronics & Gadgets</option>
+                                <option value="Other" <%= formData.parcelType === 'Other' ? 'selected' : '' %>>Other Special Item</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="form-label">Package Contents & Special Handling Notes</label>
+                        <input type="text" id="description" name="description" class="form-control" placeholder="e.g. Office documents, clothing, laptop with charger" value="<%= formData.description || '' %>">
+                    </div>
+                </div>
+
+                <!-- SECTION 4: PICKUP & DROP ROUTING -->
+                <div class="booking-section">
+                    <div class="section-header" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="section-badge">4</span>
+                            <h2 class="section-title">Pickup & Drop Locations</h2>
+                        </div>
+                        <button type="button" id="btn-copy-sender" class="btn btn-outline btn-sm">
+                            Use Sender Address for Pickup
+                        </button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="pickupAddress" class="form-label">Exact Pickup Address</label>
+                            <input type="text" id="pickupAddress" name="pickupAddress" class="form-control" placeholder="Address where courier collects parcel" value="<%= formData.pickupAddress || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pickupPincode" class="form-label">Pickup Pincode</label>
+                            <input type="text" id="pickupPincode" name="pickupPincode" class="form-control" placeholder="e.g. 110001" maxlength="6" value="<%= formData.pickupPincode || '' %>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="dropAddress" class="form-label">Exact Drop Address</label>
+                            <input type="text" id="dropAddress" name="dropAddress" class="form-control" placeholder="Destination address where courier delivers parcel" value="<%= formData.dropAddress || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dropPincode" class="form-label">Drop Pincode</label>
+                            <input type="text" id="dropPincode" name="dropPincode" class="form-control" placeholder="e.g. 201301" maxlength="6" value="<%= formData.dropPincode || '' %>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <a href="/customer/dashboard" class="btn btn-outline btn-lg">Cancel</a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Confirm & Book Parcel
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        // Helper to copy sender address into pickup address
+        document.getElementById('btn-copy-sender')?.addEventListener('click', () => {
+            const senderAddr = document.getElementById('senderAddress').value;
+            const senderPin = document.getElementById('senderPincode').value;
+            if (senderAddr) document.getElementById('pickupAddress').value = senderAddr;
+            if (senderPin) {
+                const pickupPinInput = document.getElementById('pickupPincode');
+                pickupPinInput.value = senderPin;
+                pickupPinInput.dispatchEvent(new Event('input'));
+            }
+        });
+    </script>
+</body>
+</html>

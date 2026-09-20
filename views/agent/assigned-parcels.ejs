@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Assigned Parcels</h1>
+                    <p class="page-description">Complete manifest of all parcels assigned to your delivery schedule.</p>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div>
+                        <strong>Filter by Status:</strong>
+                    </div>
+                    <div>
+                        <select id="table-status-filter" class="form-select" style="width: auto; display: inline-block;">
+                            <option value="ALL" <%= currentStatus === 'ALL' ? 'selected' : '' %>>All Statuses</option>
+                            <option value="BOOKED" <%= currentStatus === 'BOOKED' ? 'selected' : '' %>>Booked</option>
+                            <option value="PICKED_UP" <%= currentStatus === 'PICKED_UP' ? 'selected' : '' %>>Picked Up</option>
+                            <option value="IN_TRANSIT" <%= currentStatus === 'IN_TRANSIT' ? 'selected' : '' %>>In Transit</option>
+                            <option value="OUT_FOR_DELIVERY" <%= currentStatus === 'OUT_FOR_DELIVERY' ? 'selected' : '' %>>Out for Delivery</option>
+                            <option value="DELIVERED" <%= currentStatus === 'DELIVERED' ? 'selected' : '' %>>Delivered</option>
+                            <option value="FAILED" <%= currentStatus === 'FAILED' ? 'selected' : '' %>>Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <% if (parcels && parcels.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking ID</th>
+                                    <th>Sender Details</th>
+                                    <th>Recipient Details</th>
+                                    <th>Drop Address</th>
+                                    <th>Type / Wt</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% parcels.forEach(parcel => { %>
+                                    <tr>
+                                        <td>
+                                            <a href="/agent/parcels/<%= parcel._id %>" class="tracking-code">
+                                                <%= parcel.trackingId %>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <strong><%= parcel.senderName %></strong><br>
+                                            <small style="color: var(--text-muted);"><%= parcel.senderPhone %></small>
+                                        </td>
+                                        <td>
+                                            <strong><%= parcel.receiverName %></strong><br>
+                                            <small style="color: var(--text-muted);"><%= parcel.receiverPhone %></small>
+                                        </td>
+                                        <td>
+                                            <%= parcel.dropAddress %><br>
+                                            <small style="color: var(--text-muted);">PIN: <%= parcel.dropPincode %></small>
+                                        </td>
+                                        <td>
+                                            <%= parcel.parcelType %><br>
+                                            <small style="color: var(--text-muted);"><%= parcel.weight %> kg</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>">
+                                                <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/agent/parcels/<%= parcel._id %>" class="btn btn-primary btn-sm">
+                                                Manage
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                        <div style="font-size: 3rem; margin-bottom: 0.75rem;">📦</div>
+                        <h3>No assigned parcels found</h3>
+                        <p>There are no parcels matching the current status criteria.</p>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

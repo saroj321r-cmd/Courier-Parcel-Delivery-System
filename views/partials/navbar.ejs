@@ -1,0 +1,82 @@
+<script>
+    // Immediate Theme Initialization to avoid white flash
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+</script>
+
+<header class="site-header">
+    <div class="nav-container">
+        <!-- Brand Logo -->
+        <a href="/" class="brand-link">
+            <span class="brand-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+            </span>
+            <span>COURIER<span class="brand-accent">X</span></span>
+        </a>
+
+        <!-- Navigation Links (Dynamic according to role) -->
+        <nav class="nav-links" id="nav-links">
+            <% if (!locals.currentUser) { %>
+                <!-- Public Links -->
+                <a href="/" class="nav-item <%= locals.currentPath === '/' ? 'active' : '' %>">Home</a>
+                <a href="/track" class="nav-item <%= locals.currentPath === '/track' ? 'active' : '' %>">Track Parcel</a>
+                <a href="/#how-it-works" class="nav-item">How It Works</a>
+                <a href="/#features" class="nav-item">Features</a>
+            <% } else if (currentUser.role === 'CUSTOMER') { %>
+                <!-- Customer Links -->
+                <a href="/customer/dashboard" class="nav-item <%= locals.currentPath === '/customer/dashboard' ? 'active' : '' %>">Dashboard</a>
+                <a href="/customer/parcels/book" class="nav-item <%= locals.currentPath === '/customer/parcels/book' ? 'active' : '' %>">Book Parcel</a>
+                <a href="/customer/parcels" class="nav-item <%= locals.currentPath === '/customer/parcels' ? 'active' : '' %>">My Parcels</a>
+                <a href="/track" class="nav-item <%= locals.currentPath === '/track' ? 'active' : '' %>">Track</a>
+            <% } else if (currentUser.role === 'AGENT') { %>
+                <!-- Agent Links -->
+                <a href="/agent/dashboard" class="nav-item <%= locals.currentPath === '/agent/dashboard' ? 'active' : '' %>">Dashboard</a>
+                <a href="/agent/parcels" class="nav-item <%= locals.currentPath === '/agent/parcels' ? 'active' : '' %>">Assigned Parcels</a>
+                <a href="/track" class="nav-item <%= locals.currentPath === '/track' ? 'active' : '' %>">Track</a>
+            <% } else if (currentUser.role === 'ADMIN') { %>
+                <!-- Admin Links -->
+                <a href="/admin/dashboard" class="nav-item <%= locals.currentPath === '/admin/dashboard' ? 'active' : '' %>">Dashboard</a>
+                <a href="/admin/parcels" class="nav-item <%= locals.currentPath.startsWith('/admin/parcels') ? 'active' : '' %>">All Parcels</a>
+                <a href="/admin/agents" class="nav-item <%= locals.currentPath.startsWith('/admin/agents') ? 'active' : '' %>">Agents</a>
+                <a href="/admin/zones" class="nav-item <%= locals.currentPath.startsWith('/admin/zones') ? 'active' : '' %>">Zones</a>
+                <a href="/track" class="nav-item <%= locals.currentPath === '/track' ? 'active' : '' %>">Track</a>
+            <% } %>
+        </nav>
+
+        <!-- Navbar Actions & Theme Toggle -->
+        <div class="nav-actions">
+            <!-- Theme Switcher Button -->
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Light / Dark Mode" aria-label="Toggle Theme">
+                <span id="theme-icon">☀️</span>
+                <span id="theme-text">Light</span>
+            </button>
+
+            <% if (!locals.currentUser) { %>
+                <a href="/login" class="btn btn-outline btn-sm">Login</a>
+                <a href="/register" class="btn btn-primary btn-sm">Register</a>
+            <% } else { %>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="badge badge-booked" style="font-size: 0.75rem;">
+                        <%= currentUser.role %>
+                    </span>
+                    <a href="/logout" class="btn btn-outline btn-sm" title="Sign Out">Logout</a>
+                </div>
+            <% } %>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Navigation Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+</header>

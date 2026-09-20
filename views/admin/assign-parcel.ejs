@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <h1 class="page-title" style="margin: 0;">Dispatch <%= parcel.trackingId %></h1>
+                        <button type="button" class="btn btn-outline btn-sm btn-copy-tracking" data-code="<%= parcel.trackingId %>">
+                            Copy ID
+                        </button>
+                    </div>
+                    <p class="page-description">Assign delivery driver and inspect detailed transit log.</p>
+                </div>
+                <div>
+                    <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+                        <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Overview Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">📍 Sender / Pickup</h3>
+                    <p><strong><%= parcel.senderName %></strong></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;"><%= parcel.senderPhone %></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0.5rem;">
+                        <%= parcel.pickupAddress %><br>
+                        <strong>PIN: <%= parcel.pickupPincode %></strong>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">🎯 Recipient / Drop</h3>
+                    <p><strong><%= parcel.receiverName %></strong></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;"><%= parcel.receiverPhone %></p>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 0.5rem;">
+                        <%= parcel.dropAddress %><br>
+                        <strong>PIN: <%= parcel.dropPincode %></strong>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">📦 Specifications</h3>
+                    <div style="font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <div><strong>Type:</strong> <%= parcel.parcelType %></div>
+                        <div><strong>Weight:</strong> <%= parcel.weight %> kg</div>
+                        <div><strong>Est. Charge:</strong> ₹<%= parcel.estimatedCharge %></div>
+                        <% if (parcel.failureReason) { %>
+                            <div style="color: #EF4444; font-weight: 700; margin-top: 0.35rem;">
+                                Failure: <%= parcel.failureReason %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AGENT ASSIGNMENT FORM -->
+            <div class="card" style="margin-bottom: 2.5rem; border: 2px solid var(--border-color);">
+                <div class="card-header" style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+                    <h2 class="card-title" style="margin: 0;">
+                        <%= parcel.agentId ? 'Change Assigned Delivery Agent' : 'Assign Delivery Agent' %>
+                    </h2>
+                    <p class="card-subtitle" style="margin: 0;">
+                        Only active, verified delivery personnel are listed.
+                    </p>
+                </div>
+
+                <% if (parcel.status === 'DELIVERED') { %>
+                    <div class="alert alert-success" style="margin-bottom: 0;">
+                        Shipment has already been successfully delivered. Agent re-assignment is locked.
+                    </div>
+                <% } else { %>
+                    <form action="/admin/parcels/<%= parcel._id %>/assign" method="POST">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 2;">
+                                <label for="agentId" class="form-label">Select Active Delivery Agent</label>
+                                <select id="agentId" name="agentId" class="form-select" required>
+                                    <option value="" disabled <%= !parcel.agentId ? 'selected' : '' %>>-- Choose Field Agent --</option>
+                                    <% agents.forEach(agent => { %>
+                                        <option value="<%= agent._id %>" <%= parcel.agentId && parcel.agentId._id.equals(agent._id) ? 'selected' : '' %>>
+                                            <%= agent.name %> (<%= agent.phone %>) — Vehicle: <%= agent.vehicleNumber || 'Standard Fleet' %> [<%= agent.zone || 'All Zones' %>]
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                    <%= parcel.agentId ? 'Update Assignment' : 'Confirm Assignment' %>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                <% } %>
+            </div>
+
+            <!-- Visual Timeline -->
+            <div class="card">
+                <h2 class="card-title">Audit Log & Checkpoint History</h2>
+                <div class="timeline-container">
+                    <% if (history && history.length > 0) { %>
+                        <% history.forEach((event, index) => { %>
+                            <% const isLatest = index === history.length - 1; %>
+                            <div class="timeline-step <%= isLatest ? (parcel.status === 'FAILED' ? 'failed' : 'active') : 'completed' %>">
+                                <div class="timeline-node">
+                                    <% if (event.status === 'FAILED') { %>
+                                        ✕
+                                    <% } else if (isLatest) { %>
+                                        ●
+                                    <% } else { %>
+                                        ✓
+                                    <% } %>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">
+                                            <%= statusDetails[event.status] ? statusDetails[event.status].label : event.status %>
+                                        </div>
+                                        <div class="timeline-time">
+                                            <%= new Date(event.timestamp).toLocaleString() %>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-location">
+                                        📍 <%= event.location %>
+                                    </div>
+                                    <% if (event.remarks) { %>
+                                        <div class="timeline-remarks"><%= event.remarks %></div>
+                                    <% } %>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                        Action by: <%= event.updatedBy ? event.updatedBy.name : 'System' %> (<%= event.updatedBy ? event.updatedBy.role : 'AUTO' %>)
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

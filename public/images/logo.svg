@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" fill="none">
+  <rect width="40" height="40" rx="10" fill="currentColor" class="logo-bg"/>
+  <path d="M12 14L20 9L28 14V26L20 31L12 26V14Z" stroke="currentColor" class="logo-box" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M20 9V20M20 20L28 14M20 20L12 14" stroke="currentColor" class="logo-lines" stroke-width="2" stroke-linecap="round"/>
+  <path d="M16 23.5L20 26L24 23.5" stroke="currentColor" class="logo-accent" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

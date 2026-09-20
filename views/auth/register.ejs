@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <main class="auth-wrapper">
+        <div class="auth-card register-card">
+            <div class="auth-header">
+                <div class="brand-icon" style="width: 48px; height: 48px; margin: 0 auto 1rem;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                    </svg>
+                </div>
+                <h1>Create an Account</h1>
+                <p>Register as a parcel customer or delivery personnel.</p>
+            </div>
+
+            <form action="/register" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" value="<%= formData.name || '' %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com" value="<%= formData.email || '' %>" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="9876543210" value="<%= formData.phone || '' %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role" class="form-label">Account Role</label>
+                        <select id="role" name="role" class="form-select" required>
+                            <option value="CUSTOMER" <%= formData.role === 'CUSTOMER' ? 'selected' : '' %>>Customer (Sender / Receiver)</option>
+                            <option value="AGENT" <%= formData.role === 'AGENT' ? 'selected' : '' %>>Delivery Agent (Field Personnel)</option>
+                        </select>
+                        <div class="form-hint">Admin access is granted strictly through internal provisioning.</div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="vehicle-group" style="display: none;">
+                    <label for="vehicleNumber" class="form-label">Vehicle Registration Number (Optional for Agents)</label>
+                    <input type="text" id="vehicleNumber" name="vehicleNumber" class="form-control" placeholder="e.g. DL-01-AB-1234" value="<%= formData.vehicleNumber || '' %>">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="At least 6 characters" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Re-type password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">Register Account</button>
+            </form>
+
+            <div class="auth-footer">
+                Already registered? <a href="/login">Log in here</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        const roleSelect = document.getElementById('role');
+        const vehicleGroup = document.getElementById('vehicle-group');
+
+        function toggleVehicleField() {
+            if (roleSelect.value === 'AGENT') {
+                vehicleGroup.style.display = 'block';
+            } else {
+                vehicleGroup.style.display = 'none';
+            }
+        }
+
+        roleSelect.addEventListener('change', toggleVehicleField);
+        toggleVehicleField();
+    </script>
+</body>
+</html>

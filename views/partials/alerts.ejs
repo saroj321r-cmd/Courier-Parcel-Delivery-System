@@ -1,0 +1,17 @@
+<% if (locals.successMessage) { %>
+    <div class="alert-container">
+        <div class="alert alert-success" role="alert">
+            <span><strong>Success:</strong> <%= successMessage %></span>
+            <button type="button" class="alert-close" aria-label="Close">&times;</button>
+        </div>
+    </div>
+<% } %>
+
+<% if (locals.errorMessage) { %>
+    <div class="alert-container">
+        <div class="alert alert-danger" role="alert">
+            <span><strong>Error:</strong> <%= errorMessage %></span>
+            <button type="button" class="alert-close" aria-label="Close">&times;</button>
+        </div>
+    </div>
+<% } %>

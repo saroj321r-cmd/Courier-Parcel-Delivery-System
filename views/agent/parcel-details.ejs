@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <div class="dashboard-layout">
+        <%- include('../partials/sidebar') %>
+
+        <main class="dashboard-main">
+            <div class="page-header">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <h1 class="page-title" style="margin: 0;">Dispatch <%= parcel.trackingId %></h1>
+                        <button type="button" class="btn btn-outline btn-sm btn-copy-tracking" data-code="<%= parcel.trackingId %>">
+                            Copy ID
+                        </button>
+                    </div>
+                    <p class="page-description">Update transit status, checkpoints, and delivery outcomes.</p>
+                </div>
+                <div>
+                    <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+                        Current: <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Parcel Logistics Summary Card -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">📍 Pickup Location</h3>
+                    <p><strong><%= parcel.senderName %></strong> (<%= parcel.senderPhone %>)</p>
+                    <p style="color: var(--text-secondary); margin-top: 0.35rem;">
+                        <%= parcel.pickupAddress %><br>
+                        <strong>PIN: <%= parcel.pickupPincode %></strong>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">🎯 Delivery Address</h3>
+                    <p><strong><%= parcel.receiverName %></strong> (<%= parcel.receiverPhone %>)</p>
+                    <p style="color: var(--text-secondary); margin-top: 0.35rem;">
+                        <%= parcel.dropAddress %><br>
+                        <strong>PIN: <%= parcel.dropPincode %></strong>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title" style="font-size: 1.05rem;">📦 Parcel Info</h3>
+                    <p>Type: <strong><%= parcel.parcelType %></strong></p>
+                    <p>Weight: <strong><%= parcel.weight %> kg</strong></p>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.35rem;">
+                        <%= parcel.description || 'No special instructions' %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- STATUS UPDATE FORM -->
+            <div class="card" style="margin-bottom: 2.5rem; border: 2px solid var(--border-color);">
+                <div class="card-header" style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+                    <h2 class="card-title" style="margin: 0;">Update Delivery Status</h2>
+                    <p class="card-subtitle" style="margin: 0;">Transitions strictly follow logistics protocol rules.</p>
+                </div>
+
+                <% if (availableStatuses && availableStatuses.length > 0) { %>
+                    <form action="/agent/parcels/<%= parcel._id %>/status" method="POST">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nextStatus" class="form-label">Next Permitted Status</label>
+                                <select id="nextStatus" name="nextStatus" class="form-select" required>
+                                    <option value="" disabled selected>-- Select Next Status --</option>
+                                    <% availableStatuses.forEach(st => { %>
+                                        <option value="<%= st %>">
+                                            ➔ <%= statusDetails[st] ? statusDetails[st].label : st %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="location" class="form-label">Current Location / Checkpoint Hub</label>
+                                <input type="text" id="location" name="location" class="form-control" placeholder="e.g. Noida Sector 62 Sorting Hub / Recipient Doorstep" required>
+                            </div>
+                        </div>
+
+                        <!-- Failure Reason (Only shown when FAILED is selected) -->
+                        <div class="form-group" id="failure-reason-group" style="display: none; background: var(--bg-secondary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            <label for="failureReason" class="form-label" style="color: #EF4444;">
+                                Failure Reason (Mandatory when marking as Failed)
+                            </label>
+                            <select id="failureReason" name="failureReason" class="form-select">
+                                <option value="" disabled selected>-- Select Failure Reason --</option>
+                                <% failureReasons.forEach(reason => { %>
+                                    <option value="<%= reason %>"><%= reason %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="remarks" class="form-label">Update Remarks / Delivery Notes</label>
+                            <textarea id="remarks" name="remarks" class="form-control" rows="3" placeholder="Add operational notes or customer handover confirmation details..."></textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                            <a href="/agent/dashboard" class="btn btn-outline">Back to Queue</a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Submit Status Transition
+                            </button>
+                        </div>
+                    </form>
+                <% } else { %>
+                    <div style="padding: 2rem; text-align: center; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">
+                            <%= parcel.status === 'DELIVERED' ? '🎉' : '⚠️' %>
+                        </div>
+                        <h3>Terminal Status Reached</h3>
+                        <p style="color: var(--text-muted); margin-top: 0.25rem;">
+                            This parcel is currently in <strong><%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %></strong> status. No further state transitions are permitted by the logistics flow system.
+                        </p>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Visual Status Timeline -->
+            <div class="card">
+                <h2 class="card-title">Live Checkpoint History</h2>
+                <p class="card-subtitle">Complete chronological history of transitions logged for this shipment.</p>
+
+                <div class="timeline-container">
+                    <% if (history && history.length > 0) { %>
+                        <% history.forEach((event, index) => { %>
+                            <% const isLatest = index === history.length - 1; %>
+                            <div class="timeline-step <%= isLatest ? (parcel.status === 'FAILED' ? 'failed' : 'active') : 'completed' %>">
+                                <div class="timeline-node">
+                                    <% if (event.status === 'FAILED') { %>
+                                        ✕
+                                    <% } else if (isLatest) { %>
+                                        ●
+                                    <% } else { %>
+                                        ✓
+                                    <% } %>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">
+                                            <%= statusDetails[event.status] ? statusDetails[event.status].label : event.status %>
+                                        </div>
+                                        <div class="timeline-time">
+                                            <%= new Date(event.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-location">
+                                        📍 <%= event.location %>
+                                    </div>
+                                    <% if (event.remarks) { %>
+                                        <div class="timeline-remarks"><%= event.remarks %></div>
+                                    <% } %>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">
+                                        Logged by: <%= event.updatedBy ? event.updatedBy.name : 'System' %> (<%= event.updatedBy ? event.updatedBy.role : 'AUTO' %>)
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <%- include('../partials/alerts') %>
+
+    <main class="container" style="max-width: 960px; min-height: calc(100vh - 200px);">
+        <!-- Track Header & Input Section -->
+        <div class="card" style="text-align: center; padding: 2.5rem 2rem; margin-bottom: 2.5rem;">
+            <div class="brand-icon" style="width: 52px; height: 52px; margin: 0 auto 1.25rem;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <h1 style="font-size: 2.15rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.5rem;">
+                Track Your Parcel
+            </h1>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.75rem;">
+                Enter your unique CourierX tracking number to inspect real-time shipment status and checkpoint history.
+            </p>
+
+            <form action="/track" method="POST" style="max-width: 550px; margin: 0 auto;">
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <input 
+                        type="text" 
+                        name="trackingId" 
+                        id="trackingId" 
+                        class="form-control" 
+                        placeholder="e.g. CRX-8F4K29" 
+                        value="<%= trackingId || '' %>" 
+                        style="text-transform: uppercase; font-weight: 700; font-size: 1.05rem; letter-spacing: 1px; text-align: center;" 
+                        required
+                    >
+                    <button type="submit" class="btn btn-primary btn-lg" style="flex-shrink: 0;">
+                        Track Parcel
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Demo Sample Tracking IDs -->
+            <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Quick Sample IDs:</span>
+                <a href="/track?id=CRX-8F4K29" class="badge badge-booked" style="text-decoration: none;">CRX-8F4K29 (Booked)</a>
+                <a href="/track?id=CRX-4A72B9" class="badge badge-in-transit" style="text-decoration: none;">CRX-4A72B9 (In Transit)</a>
+                <a href="/track?id=CRX-99K2L1" class="badge badge-out-for-delivery" style="text-decoration: none;">CRX-99K2L1 (Out for Delivery)</a>
+                <a href="/track?id=CRX-33M8X7" class="badge badge-delivered" style="text-decoration: none;">CRX-33M8X7 (Delivered)</a>
+                <a href="/track?id=CRX-77F1D4" class="badge badge-failed" style="text-decoration: none;">CRX-77F1D4 (Failed)</a>
+            </div>
+        </div>
+
+        <% if (locals.errorMessage) { %>
+            <div class="alert alert-danger" style="margin-bottom: 2rem;">
+                <div>
+                    <strong>Search Result:</strong> <%= errorMessage %>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (parcel) { %>
+            <!-- PARCEL SUMMARY CARD -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700;">
+                            Shipment Identifier
+                        </div>
+                        <h2 style="font-size: 1.6rem; font-weight: 800; margin-top: 0.25rem;">
+                            <%= parcel.trackingId %>
+                        </h2>
+                    </div>
+                    <div>
+                        <span class="badge <%= statusDetails[parcel.status] ? statusDetails[parcel.status].badgeClass : '' %>" style="font-size: 1rem; padding: 0.6rem 1.25rem;">
+                            <%= statusDetails[parcel.status] ? statusDetails[parcel.status].label : parcel.status %>
+                        </span>
+                    </div>
+                </div>
+
+                <% if (parcel.status === 'FAILED') { %>
+                    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                        <strong>⚠️ Delivery Exception:</strong> <%= parcel.failureReason || 'Recipient inaccessible' %>
+                    </div>
+                <% } %>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <span style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Origin Hub</span>
+                        <div style="font-weight: 600; margin-top: 0.25rem;"><%= parcel.pickupPincode %></div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);"><%= parcel.pickupAddress %></div>
+                    </div>
+
+                    <div>
+                        <span style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Destination</span>
+                        <div style="font-weight: 600; margin-top: 0.25rem;"><%= parcel.dropPincode %></div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);"><%= parcel.dropAddress %></div>
+                    </div>
+
+                    <div>
+                        <span style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Parcel Info</span>
+                        <div style="font-weight: 600; margin-top: 0.25rem;"><%= parcel.parcelType %> (<%= parcel.weight %> kg)</div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);">Est. Charge: ₹<%= parcel.estimatedCharge %></div>
+                    </div>
+
+                    <div>
+                        <span style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Booking Timestamp</span>
+                        <div style="font-weight: 600; margin-top: 0.25rem;"><%= new Date(parcel.createdAt).toLocaleDateString() %></div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);"><%= new Date(parcel.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUAL STATUS TIMELINE -->
+            <div class="card">
+                <h2 class="card-title">Detailed Checkpoint Journey</h2>
+                <p class="card-subtitle">Verified blockchain-like audit trail from parcel booking through final handover.</p>
+
+                <div class="timeline-container">
+                    <% if (history && history.length > 0) { %>
+                        <% history.forEach((event, index) => { %>
+                            <% const isLatest = index === history.length - 1; %>
+                            <div class="timeline-step <%= isLatest ? (parcel.status === 'FAILED' ? 'failed' : 'active') : 'completed' %>">
+                                <div class="timeline-node">
+                                    <% if (event.status === 'FAILED') { %>
+                                        ✕
+                                    <% } else if (isLatest) { %>
+                                        ●
+                                    <% } else { %>
+                                        ✓
+                                    <% } %>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">
+                                            <%= statusDetails[event.status] ? statusDetails[event.status].label : event.status %>
+                                        </div>
+                                        <div class="timeline-time">
+                                            <%= new Date(event.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-location">
+                                        📍 <%= event.location %>
+                                    </div>
+                                    <% if (event.remarks) { %>
+                                        <div class="timeline-remarks"><%= event.remarks %></div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <style>
+        .hero-section {
+            padding: 4rem 1.5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 3rem;
+        }
+        .hero-content {
+            flex: 1.2;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-pill);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+        }
+        .hero-heading {
+            font-size: 3.1rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+        }
+        .hero-subtext {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 580px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .hero-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .hero-card-preview {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 440px;
+        }
+
+        /* Tracking Hero Banner */
+        .home-tracking-box {
+            max-width: 900px;
+            margin: -2rem auto 4rem;
+            position: relative;
+            z-index: 10;
+            padding: 0 1.5rem;
+        }
+        .tracking-bar-card {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-primary);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Steps Section */
+        .steps-section {
+            padding: 4.5rem 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.75rem;
+            max-width: 1240px;
+            margin: 3rem auto 0;
+        }
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            text-align: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .step-number {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-pill);
+            background: var(--accent-primary);
+            color: var(--accent-contrast);
+            font-size: 1.15rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 5rem 1.5rem;
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: var(--transition);
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1.25rem;
+            display: inline-block;
+        }
+
+        /* Stats Strip */
+        .stats-strip {
+            padding: 3.5rem 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .stats-strip-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: center;
+        }
+        .strip-number {
+            font-size: 2.75rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+        .strip-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 0.35rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 1.5rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+    <%- include('partials/alerts') %>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span>⚡ Next-Generation Courier Logistics</span>
+                </div>
+                <h1 class="hero-heading">
+                    Delivering trust, one parcel at a time.
+                </h1>
+                <p class="hero-subtext">
+                    Book, track, and manage your shipments with an intelligent, reliable logistics network designed for seamless delivery operations.
+                </p>
+                <div class="hero-actions">
+                    <a href="/customer/parcels/book" class="btn btn-primary btn-lg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                        Book a Parcel
+                    </a>
+                    <a href="#track-section" class="btn btn-outline btn-lg">
+                        Track Shipment
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logistics Visual Card -->
+            <div class="hero-visual">
+                <div class="hero-card-preview">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                        <span class="badge badge-in-transit">Live Transit Preview</span>
+                        <span class="tracking-code">CRX-4A72B9</span>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Destination</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; margin-top: 0.15rem;">DLF Cyber City, Gurgaon</div>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Assigned Courier</div>
+                        <div style="font-weight: 600; color: var(--text-secondary);">Vikram Singh (DL-01-AB-1234)</div>
+                    </div>
+                    <div style="padding: 0.85rem; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: 0.88rem; display: flex; align-items: center; gap: 0.6rem;">
+                        <span>📍</span>
+                        <span>Out for delivery checkpoint confirmed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROMINENT TRACKING SECTION -->
+    <section class="home-tracking-box" id="track-section">
+        <div class="tracking-bar-card">
+            <div style="text-align: center; margin-bottom: 1.25rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem;">Track Your Parcel</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Enter your 10-character CourierX tracking number</p>
+            </div>
+
+            <form action="/track" method="POST" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <input 
+                    type="text" 
+                    name="trackingId" 
+                    class="form-control" 
+                    placeholder="Enter Tracking ID (e.g. CRX-8F4K29)" 
+                    style="flex: 1; min-width: 240px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;"
+                    required
+                >
+                <button type="submit" class="btn btn-primary btn-lg">Track Parcel</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="steps-section" id="how-it-works">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <h2 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px;">How It Works</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">A frictionless four-step lifecycle from door to door.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Book</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                        Input sender, recipient, parcel dimensions, and receive an instant estimated tariff and tracking code.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Pickup</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                        Admin assigns a verified local field courier to collect the package directly from your address.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">In Transit</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                        Package journeys through regional sorting hubs with live timestamped status audit logging.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Delivered</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                        Final mile courier safely hands over the package to the recipient with delivery signature confirmation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features-section" id="features">
+        <div style="text-align: center; max-width: 650px; margin: 0 auto;">
+            <h2 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px;">Engineered for Logistics Reliability</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Core features designed for enterprise transparency and field accountability.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📝</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Easy Booking</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Multi-section streamlined shipment forms with automatic rate calculations and immediate tracking generation.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔍</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Real-Time Tracking</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Publicly accessible visual timeline tracking showing real-time checkpoints, transit hubs, and agent updates.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🚚</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Agent Management</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Field dispatch portal with dedicated routes, vehicle tagging, and strict single-driver parcel scoping.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📜</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Status History</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Auditable, tamper-resistant StatusHistory collection recording timestamp, operator identity, location, and notes.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🗺️</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Delivery Zones</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Dynamic postal code clustering with regional multiplier tariffs for local, nearby, and inter-state logistics.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Secure Authentication</h3>
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Bcrypt password hashing, MongoDB session persistence via connect-mongo, and strict role guards.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIVE PLATFORM STATISTICS (Queried directly from MongoDB) -->
+    <section class="stats-strip">
+        <div class="stats-strip-grid">
+            <div>
+                <div class="strip-number"><%= stats.delivered %>+</div>
+                <div class="strip-label">Parcels Delivered</div>
+            </div>
+            <div>
+                <div class="strip-number"><%= stats.agents %></div>
+                <div class="strip-label">Active Delivery Agents</div>
+            </div>
+            <div>
+                <div class="strip-number"><%= stats.zones %></div>
+                <div class="strip-label">Delivery Zones</div>
+            </div>
+            <div>
+                <div class="strip-number"><%= stats.successRate %>%</div>
+                <div class="strip-label">Successful Deliveries</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CALL TO ACTION (CTA) -->
+    <section class="cta-section">
+        <h2 style="font-size: 2.3rem; font-weight: 800; margin-bottom: 0.75rem;">Ready to send your parcel?</h2>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+            Create an account in seconds or book immediately with our transparent weight and regional pricing model.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="/customer/parcels/book" class="btn btn-primary btn-lg">Book a Parcel</a>
+            <a href="/register" class="btn btn-outline btn-lg">Sign Up Now</a>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
